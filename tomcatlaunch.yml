@@ -1,0 +1,44 @@
+Tomcatlaunch.yml
+|-- ansible.cfg
+|-- Tomcatlaunch.yml
+|-- hosts
+
+- hosts: localhost
+  sudo: yes
+  tasks:
+   - name: Install add-apt-repository
+     become: yes
+     apt: name=software-properties-common state=latest
+   - name: Add Oracle Java Reposiotry
+     become: yes
+     apt_repository: repo='ppa:webupd8team/java'
+   - name: Accept Java 8 License
+     become: yes
+     debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+   - name: Install Oracle Java 8
+     become: yes
+     apt: name={{item}} state=latest
+     with_items:
+	- oracle-jave8-installer
+	- ca-certificates
+	- oracle-jave8-set-default
+   - name: Create Folder
+     file:
+	path:/home/ubuntu/tomcat
+	state: directory
+	mode: 0755
+	owner: ubuntu
+	group: ubuntu
+    - name: Download Tomcat
+      get_url: url=https://arhive.apache.org/dist/tomcat/tomcat-8/v8.0.27/bin/apache-tomcat-8.0.27.tar.gz dest=/home/ubuntu/tomcat
+    - name: Extract archive
+      unarchive: start apache-tomcat-8.0.27
+    - name: start apache-tomcat-8.0.27
+      shell: /home/ubuntu/tomcat/apache-tomcat-8.0.27/bin/startup.sh
+    - name: Copy LawyerMate-1.0-SNAPSHOT.war
+      shell: cp /home/ubuntu/LawyerMate-1.0-SNAPSHOT.war /home/ubuntu/tomcat/apache-tomcat-8.0.27/webapps/
+
+
+
+
+
